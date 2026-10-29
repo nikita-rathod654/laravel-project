@@ -16,6 +16,7 @@ class Product extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
         'name',
         'sku',
         'description',
@@ -27,6 +28,14 @@ class Product extends Model
         'status',
         'image_path',
     ];
+
+    /**
+     * Get the user that owns the product.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * The attributes that should be cast.

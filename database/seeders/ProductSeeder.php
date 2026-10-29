@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -23,7 +24,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 142,
                 'low_stock_threshold' => 20,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/classic-cotton-t-shirt.png',
             ],
             [
                 'name' => 'Slim-Fit Denim Jeans',
@@ -35,7 +36,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 85,
                 'low_stock_threshold' => 15,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/slim-fit-denim-jeans.png',
             ],
             [
                 'name' => 'Ergonomic Wireless Mouse',
@@ -47,7 +48,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 19,
                 'low_stock_threshold' => 25,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/ergonomic-wireless-mouse.png',
             ],
             [
                 'name' => 'Matte Ceramic Coffee Mug',
@@ -59,7 +60,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 0,
                 'low_stock_threshold' => 10,
                 'status' => 'Inactive',
-                'image_path' => null,
+                'image_path' => 'products/matte-ceramic-coffee-mug.png',
             ],
             [
                 'name' => 'Minimalist LED Desk Lamp',
@@ -71,7 +72,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 64,
                 'low_stock_threshold' => 12,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/minimalist-led-desk-lamp.jpg',
             ],
             [
                 'name' => 'Wireless Noise-Cancelling Headphones',
@@ -83,7 +84,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 150,
                 'low_stock_threshold' => 15,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/wireless-noise-cancelling-headphones.jpg',
             ],
             [
                 'name' => 'Mechanical Gaming Keyboard',
@@ -95,7 +96,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 42,
                 'low_stock_threshold' => 10,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/mechanical-gaming-keyboard.jpg',
             ],
             [
                 'name' => 'Ultra-Wide 34-Inch Curved Monitor',
@@ -107,7 +108,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 12,
                 'low_stock_threshold' => 5,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/ultra-wide-34-inch-curved-monitor.jpg',
             ],
             [
                 'name' => 'Breathable Running Shoes',
@@ -119,7 +120,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 68,
                 'low_stock_threshold' => 20,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/breathable-running-shoes.jpg',
             ],
             [
                 'name' => 'Stainless Steel Insulated Tumbler',
@@ -131,7 +132,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 95,
                 'low_stock_threshold' => 15,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/stainless-steel-insulated-tumbler.jpg',
             ],
             [
                 'name' => 'Vintage Leather Messenger Bag',
@@ -143,7 +144,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 7,
                 'low_stock_threshold' => 10,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/vintage-leather-messenger-bag.jpg',
             ],
             [
                 'name' => 'Smart Bluetooth Fitness Tracker',
@@ -155,7 +156,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 0,
                 'low_stock_threshold' => 8,
                 'status' => 'Inactive',
-                'image_path' => null,
+                'image_path' => 'products/smart-bluetooth-fitness-tracker.jpg',
             ],
             [
                 'name' => 'Organic Bamboo Bedding Set',
@@ -167,7 +168,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 23,
                 'low_stock_threshold' => 5,
                 'status' => 'Draft',
-                'image_path' => null,
+                'image_path' => 'products/organic-bamboo-bedding-set.jpg',
             ],
             [
                 'name' => 'Waterproof Trail Hiking Jacket',
@@ -179,7 +180,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 31,
                 'low_stock_threshold' => 10,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/waterproof-trail-hiking-jacket.jpg',
             ],
             [
                 'name' => 'Titanium Polarized Sunglasses',
@@ -191,7 +192,7 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 54,
                 'low_stock_threshold' => 12,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/titanium-polarized-sunglasses.jpg',
             ],
             [
                 'name' => 'Portable 65W GaN Fast Charger',
@@ -203,11 +204,20 @@ class ProductSeeder extends Seeder
                 'stock_quantity' => 110,
                 'low_stock_threshold' => 20,
                 'status' => 'Active',
-                'image_path' => null,
+                'image_path' => 'products/portable-65w-gan-fast-charger.jpg',
             ],
         ];
 
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@ace360degree.com'],
+            [
+                'name' => 'Alex Admin',
+                'password' => bcrypt('password123'),
+            ]
+        );
+
         foreach ($products as $data) {
+            $data['user_id'] = $admin->id;
             Product::updateOrCreate(['sku' => $data['sku']], $data);
         }
     }

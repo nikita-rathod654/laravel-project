@@ -1,228 +1,132 @@
-# Ace360degree Enterprise Suite — Product Admin Dashboard
+# Ace360degree Enterprise Suite
 
-> A high-performance, responsive e-commerce Product Management Admin Dashboard built with **Laravel**, **Blade**, **Tailwind CSS**, and **MySQL / SQLite**.
-
----
-
-## 1. Project Overview
-
-The **Ace360degree Product Admin Dashboard** is an enterprise-grade catalog management dashboard inspired by modern multi-channel commerce platforms. It provides merchandisers and store administrators with complete CRUD capabilities, real-time KPI metrics, multi-parameter search and filtering, dynamic sorting, server-side pagination, safe deletion confirmation workflows, and bulk actions.
-
-### Key Metrics & Tech Stack
-- **Backend Framework:** Laravel 12 (PHP 8.3+)
-- **Templating Engine:** Laravel Blade with escaped output (`{{ }}`) and CSRF protection
-- **Frontend / Styling:** Tailwind CSS v4 & Vite
-- **Database:** MySQL / SQLite (pre-configured for zero-config SQLite testing, with 1-line switch to MySQL)
-- **Architecture Pattern:** MVC with Form Request validation, Eloquent Query Scopes, and Resource routing
+> An enterprise-grade, high-performance retail & multi-channel commerce management application built with **Laravel**, **Blade**, and **MySQL** (Zero React dependencies).
 
 ---
 
-## 2. Features Implemented
+## 1. Project Overview & Tech Stack
 
-| Feature | Description |
-| :--- | :--- |
-| **KPI Metrics Cards** | Real-time calculations of Total Products, Active Listings (% coverage), Low Stock Alerts, and Out of Stock counts. |
-| **Product CRUD** | Create, view, update, and delete products with image upload support and database persistence. |
-| **Multi-Parameter Search & Filters** | Search by partial product title or SKU, combined with Category and Publication Status (Active / Draft / Inactive) filters. |
-| **Dynamic Sorting** | Sort by Latest, Oldest, Price (Low–High / High–Low), Stock (Low–High / High–Low), and Name (A–Z / Z–A). |
-| **Server-Side Pagination** | Fast server-side `paginate()` query builder maintaining all query string parameters across pages (`withQueryString()`). |
-| **Rows Per Page Selector** | Configurable results per page (5, 10, 25, 50). |
-| **Auto SKU Generator** | Integrated AJAX endpoint (`POST /products/generate-sku`) generating unique standardized warehouse SKUs (e.g., `ELE-ABC-123`). |
-| **Destructive Action Delete Modal** | Two-factor delete safety modal with product snapshot and irreversible confirmation checkbox before the delete button activates. |
-| **Bulk Actions** | Multi-select checkboxes to bulk delete, bulk activate, or bulk deactivate products in a single operation. |
-| **CSV Catalog Export** | One-click CSV download of currently filtered or all catalog products. |
-| **Bottom Dashboard Widgets** | **Critical Stock Replenishment** with quick-reorder triggers, **Catalog SKU Breakdown** with live progress bars, and **Store Channel Sync** status meters. |
+The **Ace360degree Enterprise Suite** is a unified retail management system featuring a centralized catalog, multi-branch store operations, order fulfillment, vendor relationships, promotion campaigns, marketing analytics, and a live, interactive Point of Sale (POS) cashier terminal.
+
+### Tech Stack
+* **Backend:** Laravel 13 (PHP 8.3+)
+* **Templating & UI:** Laravel Blade, HTML5, Tailwind CSS v4, Vanilla JavaScript
+* **Database:** MySQL 8.x (with optional SQLite support for testing)
+* **Architecture:** MVC with Eloquent ORM, Query Scopes, Form Request Validation, CSRF Protection, and Escaped Blade Output (`{{ }}`)
+* **Frontend Runtime:** Pure Blade Server-Side Rendering (No React runtime or build overhead)
 
 ---
 
-## 3. Database Schema
+## 2. Core Modules Implemented
 
-The `products` table was designed to satisfy all assignment criteria and UI reference mockups:
-
-| Column | Type | Attributes / Constraints | Purpose |
-| :--- | :--- | :--- | :--- |
-| `id` | `BIGINT` | Primary Key, Auto Increment | Unique record identifier |
-| `name` | `VARCHAR(255)` | `NOT NULL` | Product title / name |
-| `sku` | `VARCHAR(100)` | `NOT NULL, UNIQUE, INDEX` | Unique warehouse Stock Keeping Unit |
-| `description` | `TEXT` | `NULLABLE` | Detailed specifications / markdown notes |
-| `price` | `DECIMAL(10,2)` | `NOT NULL, UNSIGNED (>= 0)` | Base regular retail price |
-| `sale_price` | `DECIMAL(10,2)` | `NULLABLE, <= price` | Optional discounted promotional price |
-| `category` | `VARCHAR(100)` | `NOT NULL, INDEX` | Product grouping (Apparel, Electronics, etc.) |
-| `stock_quantity` | `UNSIGNED INT` | `NOT NULL, DEFAULT 0` | Available physical inventory units |
-| `low_stock_threshold`| `UNSIGNED INT` | `NOT NULL, DEFAULT 10` | Alert threshold triggering low-stock state |
-| `status` | `ENUM` | `Active, Inactive, Draft` | Catalog publication state |
-| `image_path` | `VARCHAR(255)` | `NULLABLE` | Relative path to thumbnail in storage |
-| `created_at` | `TIMESTAMP` | Standard Eloquent timestamp | Record creation timestamp |
-| `updated_at` | `TIMESTAMP` | Standard Eloquent timestamp | Record modification timestamp |
+| Module | Route | Functionality |
+| :--- | :--- | :--- |
+| **Authentication** | `/login`, `/register`, `/logout` | User sign in, account registration, session regeneration, remember me, and secure logout. |
+| **User Profile** | `/profile` | Authenticated user profile management: update name, update email, and change password with current password verification. |
+| **Dashboard** | `/dashboard` | Business overview with live revenue metrics, weekly sales trend charts, recent orders feed, inventory alerts, and module shortcuts. |
+| **Product Management** | `/products` | Full CRUD catalog with required database fields, image uploads, search by name/SKU, category/status filters, sorting, server-side pagination (`withQueryString()`), SKU generator, and CSV export. |
+| **Store Management** | `/stores` | Branch and outlet registry with store code, operating status, addresses, managers, and search/filter. |
+| **Orders Management** | `/orders` | Order fulfillment hub with customer information, channel tracking (Online, In-Store/POS, Marketplace), line items, order status transitions (Pending, Processing, Completed, Cancelled), and financial summaries. |
+| **Vendor Management** | `/vendors` | Supplier directory with contact persons, supplied product categories, credit/payment terms (Net 30, COD), and supplier ratings. |
+| **Promotions** | `/promotions` | Coupon and promotional rule engine supporting percentage (%) and flat ($) discounts, minimum order thresholds, usage limits, and expiration tracking. |
+| **Marketing** | `/marketing` | Growth campaign management with channel allocation (Social Media, Google Ads, Email, SMS), budget vs. ad spend progress, click-through rates (CTR), and conversion attribution. |
+| **Point of Sale (POS)** | `/pos` | Real-time cashier terminal with instant search, category filtering, interactive cart, coupon redemption, live stock deduction from MySQL upon checkout, and printable receipt modal. |
 
 ---
 
-## 4. Setup & Installation Guide
+## 3. Product Catalog Specification
 
-Follow these steps to set up the project on any Windows, macOS, or Linux machine.
+The `products` table satisfies all database and validation criteria:
 
-### Prerequisites
-- **PHP >= 8.2** (PHP 8.3 recommended) with extensions: `pdo`, `mbstring`, `openssl`, `curl`, `fileinfo`, `gd`, `intl`, `sqlite3` or `pdo_mysql`.
-- **Composer** (v2.x)
-- **Node.js** (v18+) & **NPM**
+| Field | Requirement / Type | Description |
+| :--- | :--- | :--- |
+| `name` | Required string | Product title / name |
+| `sku` | Required unique string | Stock Keeping Unit (e.g. `APP-TSH-001`, `ELE-HPH-2024`) |
+| `description` | Nullable text | Markdown or detailed description |
+| `price` | Decimal(10,2), >= 0 | Base regular retail price |
+| `category` | String or category_id | Category grouping (`Apparel`, `Electronics`, `Home & Living`, etc.) |
+| `stock_quantity` | Unsigned integer | Available stock units |
+| `status` | Active / Inactive | Catalog visibility status |
+| `image_path` | Optional string | Relative path to uploaded product photo |
+| `timestamps` | `created_at` / `updated_at` | Record audit timestamps |
 
-### Step 1: Clone or Navigate to Project
+### Seeded Sample Products
+Over 15 realistic products across Apparel, Electronics, and Home & Living are pre-seeded via `ProductSeeder.php`.
+
+---
+
+## 4. Environment (.env) Setup & Security
+
+Secrets and machine-specific credentials are **excluded** from version control via `.gitignore`. 
+
+### Step 1: Copy Environment Template
 ```bash
-cd C:\Users\NIKITA\.gemini\antigravity\scratch\ace360degree-dashboard
-```
-
-### Step 2: Install Dependencies
-```bash
-# Install PHP vendor packages
-composer install
-
-# Install frontend npm dependencies
-npm install
-```
-
-### Step 3: Configure Environment (.env)
-```bash
-# Copy example configuration if .env does not exist
 cp .env.example .env
+```
 
-# Generate application encryption key
+### Step 2: Generate Application Key
+```bash
 php artisan key:generate
 ```
 
-#### Database Option A: SQLite (Default Zero-Config Setup)
-The application comes pre-configured with SQLite for instant out-of-the-box execution with zero database server setup required:
-```env
-DB_CONNECTION=sqlite
+### Step 3: Configure MySQL Connection
+In `.env`, configure your local or remote MySQL database credentials:
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ace360degree_catalog
+DB_USERNAME=root
+DB_PASSWORD=root123
 ```
-The database file is automatically located at `database/database.sqlite`.
 
-#### Database Option B: MySQL Setup
-If you want to use MySQL (e.g. XAMPP, Laragon, MySQL 8 Server, or Docker):
-1. Create a database:
-   ```sql
-   CREATE DATABASE ace360degree_catalog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-2. In your `.env` file, uncomment and update the MySQL settings:
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=ace360degree_catalog
-   DB_USERNAME=root
-   DB_PASSWORD=your_password_here
-   ```
+> **Note on Secret Exclusion:**
+> The `.env` file is explicitly ignored in `.gitignore` to prevent database passwords, API credentials, and application keys from being committed to Git. Only `.env.example` is committed with generic placeholders.
 
-### Step 4: Run Database Migrations & Seeders
-Execute the migrations and seeders to create all tables and populate at least 16 realistic products matching the reference mockups:
+---
+
+## 5. Installation & Launch Steps
+
+### 1. Install Dependencies
+```bash
+# PHP Dependencies
+composer install
+
+# Frontend Assets (Tailwind CSS v4 & Vite)
+npm install
+npm run build
+```
+
+### 2. Run Database Migrations & Seeders
+This command runs all migrations and populates sample products, stores, vendors, promotions, marketing campaigns, and orders:
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-### Step 5: Link Storage for Image Uploads
-Create the symbolic link to make uploaded product images publicly accessible:
-```bash
-php artisan storage:link
-```
-
-### Step 6: Build Frontend Assets
-Compile the Tailwind CSS styles and JavaScript assets using Vite:
-```bash
-npm run build
-```
-*(Or run `npm run dev` during active frontend development).*
-
-### Step 7: Launch the Application
-Start the local Laravel development server:
+### 3. Start Application
 ```bash
 php artisan serve
 ```
-Open your browser and navigate to:
-```
-http://127.0.0.1:8000
-```
-*(It will automatically redirect to `/products`)*.
+Visit `http://127.0.0.1:8000` in your web browser. 
+
+#### Demo Admin Account Credentials
+* **Email:** `admin@ace360degree.com`
+* **Password:** `password123`
+*(A "Use Demo Credentials" button is also provided on the sign-in page for 1-click login)*
 
 ---
 
-## 5. Running Automated Tests
+## 6. Automated Testing Suite
 
-A comprehensive suite of feature and unit tests is included, verifying CRUD correctness, validation constraints, search & filter combinations, SKU generation, and CSV export.
-
+The suite comes with an automated feature test suite (16 tests, 63 assertions) utilizing an in-memory SQLite database:
 ```bash
 php artisan test
 ```
 
-### Test Coverage Highlights:
-- `test_products_index_page_loads_with_data_and_metrics`: Verifies index status 200, KPI metrics rendering, and product data display.
-- `test_search_by_partial_name_and_sku`: Verifies search queries properly filter products by partial title and SKU.
-- `test_combined_category_and_status_filters`: Verifies multi-parameter filters execute correctly in combination.
-- `test_can_create_product_with_valid_data`: Verifies creation persists records and sets session flash messages.
-- `test_duplicate_sku_is_rejected`: Confirms unique validation rule prevents duplicate SKUs.
-- `test_negative_values_are_rejected`: Confirms non-negative price and stock quantity constraints.
-- `test_can_update_product`: Confirms record modifications persist and preserve SKU uniqueness.
-- `test_can_delete_product`: Confirms product deletion removes record from database.
-- `test_generate_sku_endpoint`: Validates AJAX SKU generator API response.
-- `test_csv_export_endpoint`: Validates CSV catalog streaming and structure.
-
----
-
-## 6. Architecture & Implementation Explanations
-
-Here are the key technical concepts behind this implementation, structured for technical review:
-
-### A. Routing (`routes/web.php`)
-- **Resource Routing:** `Route::resource('products', ProductController::class)` generates all standard RESTful route names: `products.index`, `products.store`, `products.show`, `products.edit`, `products.update`, and `products.destroy`.
-- **Specialized Endpoints:** Placed before resource routes to prevent wildcard collision:
-  - `POST /products/generate-sku` (`products.generate-sku`)
-  - `POST /products/bulk` (`products.bulk`)
-  - `GET /products/export` (`products.export`)
-
-### B. Controller & Clean Separation (`ProductController.php`)
-- Validation is decoupled from the controller into dedicated Form Requests:
-  - `StoreProductRequest`
-  - `UpdateProductRequest`
-- File upload handling utilizes `Illuminate\Support\Facades\Storage` using the `public` disk, ensuring safe file hashing and cleanup of old images upon product update or deletion.
-
-### C. Eloquent Scopes & Server-side Pagination
-- Query Scopes in `app/Models/Product.php` keep queries expressive and reusable:
-  - `scopeSearch($query, $term)`: Case-insensitive partial matching on `name` or `sku`.
-  - `scopeFilterCategory($query, $category)`: Filters by category if selected.
-  - `scopeFilterStatus($query, $status)`: Filters by status if selected.
-  - `scopeApplySorting($query, $sortBy)`: Translates sort keys (`price_asc`, `stock_desc`, `latest`) into `orderBy()` clauses.
-- **Server-side Pagination with Parameter Preservation:**
-  ```php
-  $products = $query->paginate($perPage)->withQueryString();
-  ```
-  Calling `->withQueryString()` ensures that active search terms, selected categories, status filters, and sorting choices remain intact when the user navigates between pagination pages.
-
-### D. Security & Validation
-- **CSRF Protection:** All forms include `@csrf` and JavaScript AJAX requests pass `X-CSRF-TOKEN`.
-- **SQL Injection Prevention:** All queries use Eloquent parameterized statements.
-- **XSS Prevention:** All user inputs rendered in Blade views utilize `{{ $var }}` escaped syntax.
-- **Unique SKU Update Safety:** Uses `Rule::unique('products', 'sku')->ignore($product->id)` so updating a product's name or price does not trigger a false duplicate SKU validation error against itself.
-
----
-
-## 7. Known Limitations & Honest Reflections
-
-1. **Multi-Channel Sync Integration:** The "Store Channel Sync" and "Critical Stock Replenishment" reorder triggers simulate the webhook and API transactions visually. In production, these would connect to real Shopify / Amazon SP-API OAuth connectors and queue asynchronous jobs.
-2. **Role-Based Access Control (RBAC):** The Delete modal mentions "Requires Merchandiser Admin Role". Currently, all authenticated users / admins can perform the action; full Spatie Laravel-Permission role gates can be layered on top for multi-tenant teams.
-3. **CDN Image Storage:** Thumbnail files are stored on the local public disk (`storage/app/public/products`). For cloud scale, `FILESYSTEM_DISK=s3` can be swapped in `.env` without changing controller code.
-
----
-
-## 8. Checklist Verification
-
-- [x] **Working implementation rather than static mockup.**
-- [x] **Product model, migration, seeder, controller, named routes, and Blade views created.**
-- [x] **16 realistic seeded products included.**
-- [x] **CRUD complete (Create, List, Show, Edit, Delete).**
-- [x] **Search by partial product name or SKU.**
-- [x] **Filter by category and status (combined).**
-- [x] **Server-side pagination with preserved query parameters.**
-- [x] **Reset Filters button clears all parameters.**
-- [x] **Two-step delete confirmation modal with irreversible checkbox.**
-- [x] **Flash messages for actions (Create, Update, Delete, Bulk).**
-- [x] **Empty state handling for zero search/filter results.**
-- [x] **Automated test suite passing 100%.**
-- [x] **Zero secrets or API keys committed in repository.**
+Tests cover:
+* Product catalog loading, pagination query preservation, and KPI metrics.
+* Product CRUD (creation, validation, editing, deletion).
+* Combined search by partial name / SKU and filtering by category & status.
+* Store Management CRUD.
+* Orders Management status transition.
+* Point of Sale (POS) checkout: automated inventory decrement and order creation.

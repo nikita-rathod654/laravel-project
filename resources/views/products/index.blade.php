@@ -618,24 +618,18 @@
 </div>
 
 <!-- ========================================== -->
-<!-- MODAL 1: ADD / EDIT PRODUCT MODAL          -->
-<!-- (Exact match to Reference Images 2 & 5)    -->
-<!-- ========================================== -->
-<div id="productModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden my-8 animate-scale-up">
-        
-        <!-- Modal Header -->
-        <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between">
+
+<div id="productModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-100 overflow-hidden"
+         style="display:flex; flex-direction:column; max-height:92vh;">
+
+        <!-- Header (always visible) -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-start justify-between" style="flex-shrink:0;">
             <div>
                 <div class="flex items-center gap-2.5">
                     <h3 id="modalTitle" class="text-base font-bold text-slate-900">Add New Product</h3>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                        Draft v1.0
-                    </span>
                 </div>
-                <p class="text-xs text-slate-500 mt-1">
-                    Fill in the product details below. Starred fields (<span class="text-rose-500">*</span>) are mandatory for MySQL catalog sync.
-                </p>
+                <p class="text-xs text-slate-500 mt-1">Fields marked <span class="text-rose-500">*</span> are required.</p>
             </div>
             <button type="button" onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -644,263 +638,180 @@
             </button>
         </div>
 
-        <!-- Modal Form -->
-        <form id="productForm" method="POST" enctype="multipart/form-data" action="{{ route('products.store') }}" class="p-6 space-y-5">
+        <form id="productForm" method="POST" enctype="multipart/form-data" action="{{ route('products.store') }}"
+              style="display:flex; flex-direction:column; flex:1 1 auto; min-height:0;">
             @csrf
             <input type="hidden" name="_method" id="formMethod" value="POST">
             <input type="hidden" name="id" id="productId" value="">
 
-            <!-- Validation Errors Box (Client-side / Flash) -->
-            <div id="modalErrors" class="hidden p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700"></div>
+            <!-- Scrollable fields (ONLY this part scrolls) -->
+            <div class="p-6 space-y-5" style="flex:1 1 auto; min-height:0; overflow-y:auto;">
 
-            <!-- Product Name -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                    Product Name <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" 
-                       name="name" 
-                       id="inputName" 
-                       required 
-                       placeholder="e.g. Wireless Noise-Cancelling Headphones"
-                       class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-            </div>
+                <div id="modalErrors" class="hidden p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700"></div>
 
-            <!-- Row: SKU & Category -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- SKU with Generate Button -->
+                <!-- Product Name -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                        SKU (Stock Keeping Unit) <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="flex gap-2">
-                        <input type="text" 
-                               name="sku" 
-                               id="inputSku" 
-                               required 
-                               placeholder="e.g. ELE-HPH-2024"
-                               class="flex-1 px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        <button type="button" 
-                                onclick="fetchGeneratedSku()" 
-                                class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-colors">
-                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            <span>Generate</span>
-                        </button>
-                    </div>
-                    <span class="text-[11px] text-slate-400 mt-1 block">Unique alphanumeric identifier used across warehouses.</span>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Product Name <span class="text-rose-500">*</span></label>
+                    <input type="text" name="name" id="inputName" required placeholder="e.g. Wireless Noise-Cancelling Headphones"
+                           class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
-                <!-- Category -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                        Category <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="category" id="inputCategory" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                        <option value="">Select Category</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Apparel">Apparel</option>
-                        <option value="Home & Living">Home & Living</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="Footwear">Footwear</option>
-                    </select>
-                    <span class="text-[11px] text-slate-400 mt-1 block">Classifies tax rates and marketplace grouping.</span>
-                </div>
-            </div>
-
-            <!-- Row: Regular Price & Sale Price -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                        Regular Price ($) <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">$</span>
-                        <input type="number" 
-                               step="0.01" 
-                               min="0" 
-                               name="price" 
-                               id="inputPrice" 
-                               required 
-                               placeholder="199.99"
-                               class="w-full pl-8 pr-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                        Sale Price ($) <span class="text-slate-400 font-normal">(Optional)</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">$</span>
-                        <input type="number" 
-                               step="0.01" 
-                               min="0" 
-                               name="sale_price" 
-                               id="inputSalePrice" 
-                               placeholder="149.99"
-                               class="w-full pl-8 pr-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Row: Stock Quantity & Low Stock Threshold -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                        Stock Quantity <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="number" 
-                           min="0" 
-                           name="stock_quantity" 
-                           id="inputStock" 
-                           required 
-                           placeholder="150"
-                           class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                        Low Stock Threshold <span class="text-slate-400 font-normal">(Alert Limit)</span>
-                    </label>
-                    <input type="number" 
-                           min="0" 
-                           name="low_stock_threshold" 
-                           id="inputThreshold" 
-                           placeholder="15"
-                           class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                </div>
-            </div>
-
-            <!-- Publication Status Radio Cards -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                    Product Publication Status <span class="text-rose-500">*</span>
-                </label>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <!-- Active -->
-                    <label class="relative flex flex-col p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors status-option border-slate-200" id="statusOptionActive">
-                        <div class="flex items-center gap-2">
-                            <input type="radio" name="status" value="Active" checked class="text-blue-600 focus:ring-blue-500 h-4 w-4">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span class="text-xs font-bold text-slate-900">Active</span>
-                        </div>
-                        <span class="text-[10px] text-slate-400 mt-1 pl-6">Visible in storefront & POS</span>
-                    </label>
-
-                    <!-- Draft -->
-                    <label class="relative flex flex-col p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors status-option border-slate-200" id="statusOptionDraft">
-                        <div class="flex items-center gap-2">
-                            <input type="radio" name="status" value="Draft" class="text-blue-600 focus:ring-blue-500 h-4 w-4">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                            <span class="text-xs font-bold text-slate-900">Draft</span>
-                        </div>
-                        <span class="text-[10px] text-slate-400 mt-1 pl-6">Hidden from customer views</span>
-                    </label>
-
-                    <!-- Inactive -->
-                    <label class="relative flex flex-col p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors status-option border-slate-200" id="statusOptionInactive">
-                        <div class="flex items-center gap-2">
-                            <input type="radio" name="status" value="Inactive" class="text-blue-600 focus:ring-blue-500 h-4 w-4">
-                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                            <span class="text-xs font-bold text-slate-900">Inactive</span>
-                        </div>
-                        <span class="text-[10px] text-slate-400 mt-1 pl-6">Archived SKU record</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Description / Short Summary with Toolbar & Char Count -->
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="text-xs font-bold text-slate-700">Description / Short Summary</label>
-                    <span class="text-[10px] text-slate-400 font-mono">&lt;&gt; Markdown & HTML Supported</span>
-                </div>
-
-                <div class="border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
-                    <!-- Formatting Toolbar -->
-                    <div class="bg-slate-50 px-3 py-1.5 border-b border-slate-200 flex items-center justify-between text-slate-500">
-                        <div class="flex items-center gap-2 text-xs">
-                            <button type="button" onclick="formatText('**', '**')" class="p-1 hover:text-slate-900 font-bold rounded">B</button>
-                            <button type="button" onclick="formatText('*', '*')" class="p-1 hover:text-slate-900 italic rounded">I</button>
-                            <button type="button" onclick="formatText('\n- ')" class="p-1 hover:text-slate-900 rounded">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <!-- SKU & Category -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div style="min-width:0;">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">SKU <span class="text-rose-500">*</span></label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="sku" id="inputSku" required placeholder="e.g. ELE-HPH-2024"
+                                   class="px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   style="flex:1 1 auto; min-width:0; width:100%;">
+                            <button type="button" onclick="fetchGeneratedSku()"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-colors"
+                                    style="flex-shrink:0; white-space:nowrap;">
+                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span>Generate</span>
                             </button>
                         </div>
-                        <span id="charCounter" class="text-[10px] font-mono text-slate-400">0 / 2000 chars</span>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Unique ID used across warehouses.</span>
                     </div>
-                    <textarea name="description" 
-                              id="inputDescription" 
-                              rows="3" 
-                              maxlength="2000"
-                              oninput="updateCharCount(this)"
-                              placeholder="Provide detailed product specifications, materials, and highlights..."
-                              class="w-full p-3 text-xs text-slate-800 placeholder-slate-400 border-none focus:outline-none"></textarea>
-                </div>
-            </div>
 
-            <!-- Product Image Upload Area (Drag & Drop + Preview) -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Product Image Upload Area</label>
-                
-                <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <!-- Upload Dropzone -->
-                    <div onclick="document.getElementById('imageFileInput').click()" 
-                         id="dropzoneArea"
-                         class="flex-1 w-full border-2 border-dashed border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50/30 rounded-xl p-5 text-center cursor-pointer transition-all">
-                        <input type="file" name="image" id="imageFileInput" accept="image/*" class="hidden" onchange="previewSelectedImage(this)">
-                        <div class="flex flex-col items-center">
-                            <svg class="w-8 h-8 text-blue-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <p class="text-xs font-bold text-slate-700">
-                                Drag & drop product thumbnail or <span class="text-blue-600 underline">browse file</span>
-                            </p>
-                            <span class="text-[10px] text-slate-400 mt-0.5">High resolution square or 4:3 ratio recommended (Max 3MB)</span>
+                    <div style="min-width:0;">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Category <span class="text-rose-500">*</span></label>
+                        <select name="category" id="inputCategory" required
+                                class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Apparel">Apparel</option>
+                            <option value="Home & Living">Home & Living</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Footwear">Footwear</option>
+                        </select>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Used for tax rates and grouping.</span>
+                    </div>
+                </div>
+
+                <!-- Prices -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div style="min-width:0;">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Regular Price ($) <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">$</span>
+                            <input type="number" step="0.01" min="0" name="price" id="inputPrice" required placeholder="199.99"
+                                   class="w-full pl-8 pr-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
+                    <div style="min-width:0;">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Sale Price ($) <span class="text-slate-400 font-normal">(Optional)</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm">$</span>
+                            <input type="number" step="0.01" min="0" name="sale_price" id="inputSalePrice" placeholder="149.99"
+                                   class="w-full pl-8 pr-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Image Preview Container -->
-                    <div id="imagePreviewContainer" class="hidden relative w-24 h-24 rounded-xl border border-slate-200 overflow-hidden bg-slate-100 flex-shrink-0">
-                        <img id="imagePreviewImg" src="" alt="Thumbnail preview" class="w-full h-full object-cover">
-                        <button type="button" onclick="clearSelectedImage()" class="absolute top-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white rounded-full p-1 transition-colors">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+                <!-- Stock -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div style="min-width:0;">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Stock Quantity <span class="text-rose-500">*</span></label>
+                        <input type="number" min="0" name="stock_quantity" id="inputStock" required placeholder="150"
+                               class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div style="min-width:0;">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Low Stock Alert <span class="text-slate-400 font-normal">(at or below)</span></label>
+                        <input type="number" min="0" name="low_stock_threshold" id="inputThreshold" placeholder="15"
+                               class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Status <span class="text-rose-500">*</span></label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label class="flex flex-col p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="status" value="Active" checked class="text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span class="text-xs font-bold text-slate-900">Active</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 mt-1 pl-6">Visible in storefront & POS</span>
+                        </label>
+                        <label class="flex flex-col p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="status" value="Draft" class="text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                <span class="text-xs font-bold text-slate-900">Draft</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 mt-1 pl-6">Hidden from customers</span>
+                        </label>
+                        <label class="flex flex-col p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="status" value="Inactive" class="text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span class="text-xs font-bold text-slate-900">Inactive</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 mt-1 pl-6">Archived SKU record</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Description</label>
+                    <div class="border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                        <div class="bg-slate-50 px-3 py-1.5 border-b border-slate-200 flex items-center justify-between text-slate-500">
+                            <div class="flex items-center gap-2 text-xs">
+                                <button type="button" onclick="formatText('**', '**')" class="p-1 hover:text-slate-900 font-bold rounded">B</button>
+                                <button type="button" onclick="formatText('*', '*')" class="p-1 hover:text-slate-900 italic rounded">I</button>
+                                <button type="button" onclick="formatText('\n- ')" class="p-1 hover:text-slate-900 rounded">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                </button>
+                            </div>
+                            <span id="charCounter" class="text-[10px] font-mono text-slate-400">0 / 2000 chars</span>
+                        </div>
+                        <textarea name="description" id="inputDescription" rows="3" maxlength="2000" oninput="updateCharCount(this)"
+                                  placeholder="Specifications, materials and highlights..."
+                                  class="w-full p-3 text-xs text-slate-800 placeholder-slate-400 border-none focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Image -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Product Image</label>
+                    <div class="flex items-center gap-4">
+                        <div onclick="document.getElementById('imageFileInput').click()" id="dropzoneArea"
+                             class="flex-1 border-2 border-dashed border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50/30 rounded-xl p-4 text-center cursor-pointer transition-all"
+                             style="min-width:0;">
+                            <input type="file" name="image" id="imageFileInput" accept="image/*" class="hidden" onchange="previewSelectedImage(this)">
+                            <p class="text-xs font-bold text-slate-700">Drag & drop or <span class="text-blue-600 underline">browse file</span></p>
+                            <span class="text-[10px] text-slate-400">Square or 4:3 recommended (max 3MB)</span>
+                        </div>
+                        <div id="imagePreviewContainer" class="hidden relative w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-100" style="flex-shrink:0;">
+                            <img id="imagePreviewImg" src="" alt="Thumbnail preview" class="w-full h-full object-cover">
+                            <button type="button" onclick="clearSelectedImage()" class="absolute top-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white rounded-full p-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-1.5 text-xs text-slate-400">
-                    <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Auto-saved to local memory</span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="closeProductModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
-                        Cancel
-                    </button>
-                    <button type="button" onclick="submitAsDraft()" class="px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
-                        Save as Draft
-                    </button>
-                    <button type="submit" id="modalSubmitBtn" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs shadow-blue-500/20 transition-all flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span id="modalSubmitText">Save & Publish Product</span>
-                    </button>
-                </div>
+            <!-- Footer (always visible) -->
+            <div class="px-6 py-4 border-t border-slate-100 bg-white flex flex-wrap items-center justify-end gap-2" style="flex-shrink:0;">
+                <button type="button" onclick="closeProductModal()" class="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <button type="button" onclick="submitAsDraft()" class="px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
+                    Save as Draft
+                </button>
+                <button type="submit" id="modalSubmitBtn" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all flex items-center gap-1.5">
+                    <span id="modalSubmitText">Save & Publish Product</span>
+                </button>
             </div>
         </form>
     </div>
 </div>
-
-<!-- ========================================== -->
-<!-- MODAL 2: DESTRUCTIVE ACTION DELETE MODAL   -->
 <!-- (Exact match to Reference Images 3 & 4)    -->
 <!-- ========================================== -->
 <div id="deleteModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">

@@ -19,27 +19,30 @@ class ProductController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        // 1. Calculate KPI Metrics for the header cards
-        $totalProducts = Product::count();
-        $activeProducts = Product::where('status', 'Active')->count();
-        $lowStockProducts = Product::where('stock_quantity', '>', 0)
+        $userId = auth()->id();
+        $baseQuery = Product::where('user_id', $userId);
+
+        // 1. Calculate KPI Metrics for the header cards (scoped to user)
+        $totalProducts = (clone $baseQuery)->count();
+        $activeProducts = (clone $baseQuery)->where('status', 'Active')->count();
+        $lowStockProducts = (clone $baseQuery)->where('stock_quantity', '>', 0)
             ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')
             ->count();
-        $outOfStockProducts = Product::where('stock_quantity', '<=', 0)->count();
+        $outOfStockProducts = (clone $baseQuery)->where('stock_quantity', '<=', 0)->count();
 
         // Listing coverage percentage
         $coveragePercentage = $totalProducts > 0 
             ? round(($activeProducts / $totalProducts) * 100, 1) 
             : 0;
 
-        // 2. Fetch distinct categories for the filter dropdown
-        $categories = Product::distinct()
+        // 2. Fetch distinct categories for the filter dropdown (scoped to user)
+        $categories = (clone $baseQuery)->distinct()
             ->whereNotNull('category')
             ->orderBy('category')
             ->pluck('category');
 
-        // 3. Build filtered and sorted product query
-        $query = Product::query();
+        // 3. Build filtered and sorted product query (scoped to user)
+        $query = (clone $baseQuery);
 
         // Search by partial name or SKU
         if ($request->filled('search')) {
@@ -69,13 +72,13 @@ class ProductController extends Controller
         $products = $query->paginate($perPage)->withQueryString();
 
         // 4. Critical Stock Replenishment data for bottom widget
-        $criticalReplenishment = Product::where('stock_quantity', '<=', 20)
+        $criticalReplenishment = (clone $baseQuery)->where('stock_quantity', '<=', 20)
             ->orderBy('stock_quantity', 'asc')
             ->take(2)
             ->get();
 
         // 5. SKU Category Breakdown for bottom widget
-        $categoryBreakdown = Product::selectRaw('category, count(*) as count')
+        $categoryBreakdown = (clone $baseQuery)->selectRaw('category, count(*) as count')
             ->groupBy('category')
             ->orderByDesc('count')
             ->get()
@@ -121,6 +124,7 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validated();
+        $validated['user_id'] = auth()->id();
 
         // Handle Image Upload
         if ($request->hasFile('image')) {
@@ -146,6 +150,14 @@ class ProductController extends Controller
      */
     public function show(Product $product, Request $request): View|JsonResponse
     {
+        // Data isolation: only owner can view product details
+        if ($product->user_id !== auth()->id()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
+            }
+            abort(404);
+        }
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -162,6 +174,14 @@ class ProductController extends Controller
      */
     public function edit(Product $product, Request $request): View|JsonResponse
     {
+        // Data isolation: only owner can edit product
+        if ($product->user_id !== auth()->id()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
+            }
+            abort(404);
+        }
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -170,7 +190,11 @@ class ProductController extends Controller
             ]);
         }
 
-        $categories = Product::distinct()->whereNotNull('category')->orderBy('category')->pluck('category');
+        $categories = Product::where('user_id', auth()->id())
+            ->distinct()
+            ->whereNotNull('category')
+            ->orderBy('category')
+            ->pluck('category');
 
         return view('products.edit', compact('product', 'categories'));
     }
@@ -180,6 +204,14 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse|JsonResponse
     {
+        // Data isolation: only owner can update product
+        if ($product->user_id !== auth()->id()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
+            }
+            abort(404);
+        }
+
         $validated = $request->validated();
 
         // Handle Image Upload & Replacement
@@ -210,6 +242,14 @@ class ProductController extends Controller
      */
     public function destroy(Product $product, Request $request): RedirectResponse|JsonResponse
     {
+        // Data isolation: only owner can delete product
+        if ($product->user_id !== auth()->id()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
+            }
+            abort(404);
+        }
+
         $productName = $product->name;
 
         // Delete physical image if exists
@@ -248,7 +288,7 @@ class ProductController extends Controller
         do {
             $randomCode = strtoupper(Str::random(3)) . '-' . mt_rand(100, 999);
             $sku = "{$prefix}-{$randomCode}";
-        } while (Product::where('sku', $sku)->exists());
+        } while (Product::where('sku', $sku)->where('user_id', auth()->id())->exists());
 
         return response()->json([
             'success' => true,
@@ -269,7 +309,7 @@ class ProductController extends Controller
                 ->with('error', 'No products were selected for bulk action.');
         }
 
-        $products = Product::whereIn('id', $ids);
+        $products = Product::where('user_id', auth()->id())->whereIn('id', $ids);
         $count = $products->count();
 
         match ($action) {
@@ -296,7 +336,7 @@ class ProductController extends Controller
      */
     public function export(Request $request)
     {
-        $query = Product::query();
+        $query = Product::where('user_id', auth()->id());
 
         if ($request->filled('search')) {
             $query->search($request->input('search'));
@@ -340,4 +380,5 @@ class ProductController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
 }
