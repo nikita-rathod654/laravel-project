@@ -71,14 +71,7 @@ php artisan key:generate
 
 ### Step 3: Configure MySQL Connection
 In `.env`, configure your local or remote MySQL database credentials:
-```dotenv
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=ace360degree_catalog
-DB_USERNAME=root
-DB_PASSWORD=root123
-```
+
 
 > **Note on Secret Exclusion:**
 > The `.env` file is explicitly ignored in `.gitignore` to prevent database passwords, API credentials, and application keys from being committed to Git. Only `.env.example` is committed with generic placeholders.
